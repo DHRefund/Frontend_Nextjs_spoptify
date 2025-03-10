@@ -14,8 +14,7 @@ interface UserContextType {
   setUser: (user: User) => void;
   accessToken: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name?: string) => Promise<void>;
+
   logout: () => void;
   refreshAccessToken: () => Promise<string | null>;
 }
@@ -154,43 +153,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   // Hàm đăng nhập
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        email,
-        password,
-      });
-
-      // Đảm bảo format đúng với response từ backend
-      const { user: userData, access_token, refresh_token } = response.data;
-
-      setUser(userData);
-      saveTokens(access_token, refresh_token);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  };
 
   // Hàm đăng ký
-  const signup = async (email: string, password: string, name?: string) => {
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-        email,
-        password,
-        name,
-      });
-
-      // Đảm bảo format đúng với response từ backend
-      const { user: userData, access_token, refresh_token } = response.data;
-
-      setUser(userData);
-      saveTokens(access_token, refresh_token);
-    } catch (error) {
-      console.error("Signup failed:", error);
-      throw error;
-    }
-  };
 
   // Hàm đăng xuất
   const logout = () => {
@@ -205,8 +169,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setUser,
         accessToken,
         loading,
-        login,
-        signup,
+
         logout,
         refreshAccessToken,
       }}
