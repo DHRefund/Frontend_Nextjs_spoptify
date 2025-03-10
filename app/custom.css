@@ -1,0 +1,129 @@
+/* Custom dark theme colors */
+:root {
+  --spotify-black: #121212;
+  --spotify-dark-gray: #181818;
+  --spotify-light-gray: #282828;
+  --spotify-green: #1db954;
+  --spotify-white: #ffffff;
+  --spotify-text-gray: #b3b3b3;
+}
+
+/* Global styles */
+body {
+  background-color: var(--spotify-black) !important;
+  color: var(--spotify-white) !important;
+}
+
+/* Navbar customization */
+.navbar {
+  padding: 1rem 2rem;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.navbar-toggler {
+  border-color: var(--spotify-white) !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Button customization */
+.btn-primary {
+  background-color: var(--spotify-green) !important;
+  border-color: var(--spotify-green) !important;
+  border-radius: 500px !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 700 !important;
+}
+
+.btn-primary:hover {
+  background-color: #1ed760 !important;
+  border-color: #1ed760 !important;
+  transform: scale(1.04);
+}
+
+.btn-light {
+  border-radius: 500px !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+}
+
+.btn-link {
+  color: var(--spotify-text-gray) !important;
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  color: var(--spotify-white) !important;
+}
+
+/* Modal customization */
+.modal-content {
+  background-color: var(--spotify-dark-gray) !important;
+  color: var(--spotify-white) !important;
+  border-radius: 8px !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--spotify-light-gray) !important;
+}
+
+.modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.form-label {
+  color: var(--spotify-text-gray);
+  font-size: 0.875rem;
+}
+
+.form-control {
+  background-color: var(--spotify-light-gray) !important;
+  border: none !important;
+  color: var(--spotify-white) !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 4px !important;
+}
+
+.form-control:focus {
+  background-color: var(--spotify-light-gray) !important;
+  box-shadow: 0 0 0 2px var(--spotify-green) !important;
+  color: var(--spotify-white) !important;
+}
+
+/* Sidebar customization */
+.sidebar {
+  background-color: var(--spotify-black);
+  width: 240px;
+  padding: 1rem;
+}
+
+.nav-link {
+  color: var(--spotify-text-gray) !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px !important;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--spotify-white) !important;
+  background-color: var(--spotify-light-gray) !important;
+}
+
+/* Library section */
+.library-section {
+  background-color: var(--spotify-dark-gray);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.library-header {
+  color: var(--spotify-text-gray);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
