@@ -2,7 +2,6 @@
 
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { useRouter } from "next/navigation";
-import { useAuthModal } from "@/hooks/useAuthModal";
 import { useUser } from "@/providers/UserProvider";
 import { FaUserAlt } from "react-icons/fa";
 
@@ -13,7 +12,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ children }) => {
   const router = useRouter();
-  const authModal = useAuthModal();
   const { user, logout } = useUser();
 
   const handleLogout = () => {
@@ -47,10 +45,10 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
                 </>
               ) : (
                 <>
-                  <Button variant="link" className="text-white" onClick={authModal.onOpen}>
+                  <Button variant="link" className="text-white" onClick={() => router.push("/signup")}>
                     Sign up
                   </Button>
-                  <Button variant="light" onClick={authModal.onOpen}>
+                  <Button variant="light" onClick={() => router.push("/login")}>
                     Log in
                   </Button>
                 </>

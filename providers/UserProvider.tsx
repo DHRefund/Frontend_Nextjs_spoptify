@@ -1,66 +1,225 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
 
 interface User {
   id: string;
+  name?: string;
   email: string;
-  name: string;
 }
 
 interface UserContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: (user: User) => void;
+  accessToken: string | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
+  refreshAccessToken: () => Promise<string | null>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Hàm để lưu tokens vào localStorage
+  const saveTokens = (access: string, refresh: string) => {
+    localStorage.setItem("accessToken", access);
+    localStorage.setItem("refreshToken", refresh);
+    setAccessToken(access);
+    setRefreshToken(refresh);
+  };
+
+  // Hàm để xóa tokens khỏi localStorage
+  const clearTokens = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setAccessToken(null);
+    setRefreshToken(null);
+  };
+
+  // Hàm để refresh token
+  const refreshAccessToken = async (): Promise<string | null> => {
+    try {
+      if (!refreshToken) return null;
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+        refreshToken,
+      });
+
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
+
+      saveTokens(newAccessToken, newRefreshToken);
+      return newAccessToken;
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      clearTokens();
+      setUser(null);
+      return null;
+    }
+  };
+
+  // Thiết lập axios interceptor để tự động refresh token
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("access_token");
-      if (token) {
+    const requestInterceptor = axios.interceptors.request.use(
+      async (config) => {
+        if (accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // Nếu lỗi 401 và chưa thử refresh token
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          const newToken = await refreshAccessToken();
+          if (newToken) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return axios(originalRequest);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [accessToken, refreshToken]);
+
+  // Kiểm tra người dùng đã đăng nhập khi tải trang
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const storedAccessToken = localStorage.getItem("accessToken");
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+
+      if (storedAccessToken && storedRefreshToken) {
+        setAccessToken(storedAccessToken);
+        setRefreshToken(storedRefreshToken);
+
         try {
-          const response = await fetch("http://localhost:3001/auth/me", {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${storedAccessToken}`,
             },
           });
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch user");
-          }
-
-          const userData = await response.json();
-          setUser(userData);
+          // Response từ /users/me sẽ trả về trực tiếp user data
+          setUser(response.data);
         } catch (error) {
-          console.error("Error fetching user:", error);
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          setUser(null);
+          // Nếu token hết hạn, thử refresh
+          const newToken = await refreshAccessToken();
+
+          if (newToken) {
+            try {
+              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+                headers: {
+                  Authorization: `Bearer ${newToken}`,
+                },
+              });
+
+              // Response từ /users/me sẽ trả về trực tiếp user data
+              setUser(response.data);
+            } catch (error) {
+              clearTokens();
+              setUser(null);
+            }
+          } else {
+            clearTokens();
+            setUser(null);
+          }
         }
       }
+
+      setLoading(false);
     };
 
-    fetchUser();
+    initializeAuth();
   }, []);
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+  // Hàm đăng nhập
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password,
+      });
+
+      // Đảm bảo format đúng với response từ backend
+      const { user: userData, access_token, refresh_token } = response.data;
+
+      setUser(userData);
+      saveTokens(access_token, refresh_token);
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
-  return <UserContext.Provider value={{ user, setUser, logout }}>{children}</UserContext.Provider>;
-}
+  // Hàm đăng ký
+  const signup = async (email: string, password: string, name?: string) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        email,
+        password,
+        name,
+      });
 
-export function useUser() {
+      // Đảm bảo format đúng với response từ backend
+      const { user: userData, access_token, refresh_token } = response.data;
+
+      setUser(userData);
+      saveTokens(access_token, refresh_token);
+    } catch (error) {
+      console.error("Signup failed:", error);
+      throw error;
+    }
+  };
+
+  // Hàm đăng xuất
+  const logout = () => {
+    clearTokens();
+    setUser(null);
+  };
+
+  return (
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        accessToken,
+        loading,
+        login,
+        signup,
+        logout,
+        refreshAccessToken,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export const useUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error("useUser must be used within a UserProvider");
   }
   return context;
-}
+};
