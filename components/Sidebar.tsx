@@ -6,6 +6,8 @@ import { useMemo } from "react";
 import { HiHome } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
 import Library from "./Library";
+import { useUser } from "@/providers/UserProvider";
+import Loading from "./Loading";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   const pathname = usePathname();
+  const { loading } = useUser();
 
   const routes = useMemo(
     () => [
@@ -31,6 +34,10 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
     ],
     [pathname]
   );
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="d-flex h-100">

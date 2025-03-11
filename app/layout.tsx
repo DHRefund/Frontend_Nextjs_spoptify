@@ -2,10 +2,12 @@ import { Figtree } from "next/font/google";
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./custom.css";
+import { Suspense } from "react";
 
 import Sidebar from "@/components/Sidebar";
 import ToasterProvider from "@/providers/ToasterProvider";
 import { UserProvider } from "@/providers/UserProvider";
+import Loading from "@/components/Loading";
 // import { FetchUser } from "@/providers/FetchUser";
 
 const font = Figtree({ subsets: ["latin"] });
@@ -19,12 +21,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={font.className}>
-        <ToasterProvider />
-        <UserProvider>
-          {/* <FetchUser> */}
-          <Sidebar>{children}</Sidebar>
-          {/* </FetchUser> */}
-        </UserProvider>
+        <Suspense fallback={<Loading />}>
+          <ToasterProvider />
+          <UserProvider>
+            <Sidebar>
+              {/* <Suspense fallback={<Loading />}> */}
+              {children}
+              {/* </Suspense> */}
+            </Sidebar>
+          </UserProvider>
+        </Suspense>
       </body>
     </html>
   );
