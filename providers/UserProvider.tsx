@@ -104,22 +104,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Kiểm tra người dùng đã đăng nhập khi tải trang
   useEffect(() => {
+    console.log("useEffect");
     const initializeAuth = async () => {
-      const storedAccessToken = localStorage.getItem("accessToken");
-      const storedRefreshToken = localStorage.getItem("refreshToken");
+      const storedAccessToken = localStorage.getItem("access_token");
+      const storedRefreshToken = localStorage.getItem("refresh_token");
+      console.log("storedAccessToken", storedAccessToken);
+      console.log("storedRefreshToken", storedRefreshToken);
 
       if (storedAccessToken && storedRefreshToken) {
         setAccessToken(storedAccessToken);
         setRefreshToken(storedRefreshToken);
 
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
             headers: {
               Authorization: `Bearer ${storedAccessToken}`,
             },
           });
 
-          // Response từ /users/me sẽ trả về trực tiếp user data
           setUser(response.data);
         } catch (error) {
           // Nếu token hết hạn, thử refresh
@@ -127,13 +129,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (newToken) {
             try {
-              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
                 headers: {
                   Authorization: `Bearer ${newToken}`,
                 },
               });
 
-              // Response từ /users/me sẽ trả về trực tiếp user data
               setUser(response.data);
             } catch (error) {
               clearTokens();
@@ -151,10 +152,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeAuth();
   }, []);
-
-  // Hàm đăng nhập
-
-  // Hàm đăng ký
 
   // Hàm đăng xuất
   const logout = () => {

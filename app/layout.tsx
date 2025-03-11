@@ -6,6 +6,7 @@ import "./custom.css";
 import Sidebar from "@/components/Sidebar";
 import ToasterProvider from "@/providers/ToasterProvider";
 import { UserProvider } from "@/providers/UserProvider";
+// import { FetchUser } from "@/providers/FetchUser";
 
 const font = Figtree({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={font.className}>
         <ToasterProvider />
         <UserProvider>
+          {/* <FetchUser> */}
           <Sidebar>{children}</Sidebar>
+          {/* </FetchUser> */}
         </UserProvider>
       </body>
     </html>
