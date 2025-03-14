@@ -9,6 +9,7 @@ const nextConfig = {
       "media.pitchfork.com",
       "seed-mix-image.spotifycdn.com",
       "tbvswgcbrilqlvduzoox.supabase.co",
+      "res.cloudinary.com",
     ],
   },
 };

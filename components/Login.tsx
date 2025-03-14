@@ -1,103 +1,127 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
-import { useUser } from "@/providers/UserProvider";
 import Link from "next/link";
-import { loginApi } from "@/lib/api";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { Container, Row, Col, Card, Form } from "react-bootstrap";
+import { useUser } from "@/providers/UserProvider";
+import Input from "./Input";
+import Button from "./Button";
+import axiosInstance from "@/lib/axios";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { user, setUser } = useUser();
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      router.push("/");
-    }
-  }, [user, router]);
+  const { setUser } = useUser();
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FieldValues>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  } = useForm<LoginForm>();
 
-  const onSubmit: SubmitHandler<FieldValues> = async (values) => {
-    setIsLoading(true);
+  const onSubmit = async (data: LoginForm) => {
     try {
-      const data = await loginApi(values.email, values.password);
+      setIsLoading(true);
+      const response = await axiosInstance.post("/auth/login", data);
 
-      localStorage.setItem("access_token", data.access_token);
-
-      setUser(data.user);
-
-      toast.success("Logged in successfully!");
+      setUser(response.data);
       router.push("/");
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success("Logged in successfully!");
+    } catch (error) {
+      toast.error("Invalid credentials");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Container className="py-5">
+    <Container className="mt-4">
       <Row className="justify-content-center">
         <Col md={6} lg={5}>
-          <Card className="bg-dark text-white shadow">
-            <Card.Body className="p-4">
-              <h2 className="text-center mb-4">Sign In</h2>
+          <Card className="shadow-lg border-0" style={{ backgroundColor: "#121212", borderRadius: "12px" }}>
+            <Card.Body className="p-5">
+              <Card.Title as="h3" className="text-center mb-4 text-white">
+                Login to Your Account
+              </Card.Title>
+
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Enter your email"
+                  <Form.Label className="text-light">Email address</Form.Label>
+                  <Input
+                    id="email"
+                    label=""
                     disabled={isLoading}
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: "Invalid email address",
-                      },
-                    })}
-                    isInvalid={!!errors.email}
+                    {...register("email", { required: true })}
+                    type="email"
+                    className="form-control form-control-lg bg-dark text-light border-secondary"
+                    placeholder="Enter your email"
+                    style={{ borderRadius: "8px" }}
                   />
-                  <Form.Control.Feedback type="invalid">{errors.email?.message as string}</Form.Control.Feedback>
+                  <Form.Text className="text-muted">We'll never share your email with anyone else.</Form.Text>
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
+                  <Form.Label className="text-light">Password</Form.Label>
+                  <Input
+                    id="password"
+                    label=""
                     type="password"
-                    placeholder="Enter your password"
                     disabled={isLoading}
-                    {...register("password", {
-                      required: "Password is required",
-                    })}
-                    isInvalid={!!errors.password}
+                    {...register("password", { required: true })}
+                    className="form-control form-control-lg bg-dark text-light border-secondary"
+                    placeholder="Enter your password"
+                    style={{ borderRadius: "8px" }}
                   />
-                  <Form.Control.Feedback type="invalid">{errors.password?.message as string}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" disabled={isLoading} className="w-100 mb-3">
-                  {isLoading ? "Processing..." : "Sign In"}
-                </Button>
+                <div className="d-grid gap-2 mt-4">
+                  <Button
+                    disabled={isLoading}
+                    type="submit"
+                    className="btn btn-lg"
+                    style={{
+                      backgroundColor: "#1DB954",
+                      borderColor: "#1DB954",
+                      color: "white",
+                      borderRadius: "30px",
+                      padding: "12px",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Loading...
+                      </>
+                    ) : (
+                      "LOGIN"
+                    )}
+                  </Button>
+                </div>
 
-                <div className="text-center">
-                  <p className="text-muted mb-0">
+                <div className="mt-4 text-center">
+                  <p className="mb-0 text-light">
                     Don't have an account?{" "}
-                    <Link href="/signup" className="text-primary">
-                      Sign Up
+                    <Link
+                      href="/signup"
+                      style={{
+                        color: "#1DB954",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                      }}
+                      className="hover:text-green-400 transition duration-300"
+                    >
+                      Sign up
                     </Link>
                   </p>
                 </div>
@@ -108,4 +132,6 @@ export default function LoginPage() {
       </Row>
     </Container>
   );
-}
+};
+
+export default Login;

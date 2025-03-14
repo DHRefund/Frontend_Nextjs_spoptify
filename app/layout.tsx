@@ -8,7 +8,10 @@ import Sidebar from "@/components/Sidebar";
 import ToasterProvider from "@/providers/ToasterProvider";
 import { UserProvider } from "@/providers/UserProvider";
 import Loading from "@/components/Loading";
-// import { FetchUser } from "@/providers/FetchUser";
+import UploadModal from "@/components/UploadModal";
+import Player from "@/components/Player";
+import ModalProvider from "@/providers/ModalProvider";
+import { PlayerProvider } from "@/providers/PlayerContext";
 
 const font = Figtree({ subsets: ["latin"] });
 
@@ -21,16 +24,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={font.className}>
-        <Suspense fallback={<Loading />}>
+        <PlayerProvider>
           <ToasterProvider />
           <UserProvider>
-            <Sidebar>
-              {/* <Suspense fallback={<Loading />}> */}
-              {children}
-              {/* </Suspense> */}
-            </Sidebar>
+            <Suspense fallback={<Loading />}>
+              <Sidebar>
+                <Suspense fallback={<Loading />}>{children}</Suspense>
+              </Sidebar>
+              <Player />
+            </Suspense>
+            <UploadModal />
           </UserProvider>
-        </Suspense>
+        </PlayerProvider>
       </body>
     </html>
   );

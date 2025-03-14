@@ -78,18 +78,42 @@ body {
   font-size: 0.875rem;
 }
 
-.form-control {
+.form-control,
+.form-control:focus {
   background-color: var(--spotify-light-gray) !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   color: var(--spotify-white) !important;
-  padding: 0.75rem 1rem !important;
-  border-radius: 4px !important;
+  transition: border-color 0.3s ease;
 }
 
 .form-control:focus {
-  background-color: var(--spotify-light-gray) !important;
-  box-shadow: 0 0 0 2px var(--spotify-green) !important;
-  color: var(--spotify-white) !important;
+  border-color: var(--spotify-green) !important;
+  box-shadow: none !important;
+}
+
+.form-control::placeholder {
+  color: var(--spotify-text-gray) !important;
+}
+
+.form-control[type="file"] {
+  padding: 0.5rem !important;
+}
+
+.form-control[type="file"]::file-selector-button {
+  background-color: transparent;
+  color: var(--spotify-text-gray);
+  border: 1px solid var(--spotify-text-gray);
+  border-radius: 500px;
+  padding: 0.375rem 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-control[type="file"]::file-selector-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--spotify-white);
+  border-color: var(--spotify-white);
 }
 
 /* Sidebar customization */
@@ -126,4 +150,54 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.hover-white:hover {
+  color: white !important;
+}
+
+.hover-bg-dark:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-dark .modal-content {
+  background-color: #282828;
+  color: white;
+}
+
+.modal-dark .modal-header {
+  border-bottom-color: #404040;
+}
+
+.modal-dark .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Modal form customization */
+.modal-dark .form-label {
+  color: var(--spotify-white);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-dark .form-control {
+  margin-bottom: 1rem;
+}
+
+.modal-dark .btn-primary {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.modal-dark .modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-dark .modal-header {
+  padding: 1.5rem;
+}
+
+.modal-dark .modal-body {
+  padding: 1.5rem;
 }
