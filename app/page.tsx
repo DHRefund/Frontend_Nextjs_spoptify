@@ -4,12 +4,10 @@ import SongList from "@/components/SongList";
 
 export default function Home() {
   return (
-    <Container fluid className="bg-dark min-vh-100">
-      <Header>
-        <div className="mb-4">
-          <h1 className="text-white display-4">Welcome back</h1>
-        </div>
-      </Header>
+    <Container fluid className="bg-dark min-vh-100 mt-5">
+      <div className="mb-4">
+        <h1 className="text-white display-4">Welcome back</h1>
+      </div>
 
       <Row className="mb-4">
         <Col>

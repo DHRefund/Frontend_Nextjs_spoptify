@@ -2,10 +2,10 @@
 
 import { Container, Card, Spinner } from "react-bootstrap";
 import Image from "next/image";
-import Player from "./Player";
+import Player from "../Player";
 import { usePlayer } from "@/providers/PlayerContext";
-import SortOptions from "./SortOptions";
-import LikeButton from "./LikeButton";
+import SortOptions from "../SortOptions";
+import LikeButton from "../LikeButton";
 
 const SongList = () => {
   const { sortedSongs, currentSong, isLoading, setCurrentSong } = usePlayer();
@@ -26,7 +26,7 @@ const SongList = () => {
 
   return (
     <>
-      <Container fluid style={{ marginBottom: "100px" }}>
+      <Container fluid>
         <div className="d-flex justify-content-end mb-3">
           <SortOptions />
         </div>

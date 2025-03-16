@@ -9,11 +9,13 @@ import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
 import axiosInstance from "@/lib/axios";
+import { usePlayer } from "@/providers/PlayerContext";
 
 const UploadModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const uploadModal = useUploadModal();
   const { user } = useUser();
+  const { addSong } = usePlayer();
 
   // Thêm state để lưu duration
   const [songDuration, setSongDuration] = useState(0);
@@ -97,7 +99,7 @@ const UploadModal = () => {
       const songFile = values.song?.[0];
       const imageFile = values.image?.[0];
 
-      if (!songFile || !user) {
+      if (!songFile || !imageFile) {
         toast.error("Missing fields");
         return;
       }
@@ -132,6 +134,9 @@ const UploadModal = () => {
         imageUrl,
         duration: duration, // Sử dụng duration đã lấy được
       });
+
+      // Add new song to context
+      addSong(data);
 
       toast.success("Song created!");
       reset();

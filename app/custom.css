@@ -50,7 +50,7 @@ body {
 }
 
 .btn-link {
-  color: var(--spotify-text-gray) !important;
+  color: var(--spotify-text-gray);
   text-decoration: none !important;
 }
 

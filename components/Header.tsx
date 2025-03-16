@@ -5,12 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/providers/UserProvider";
 import { FaUserAlt } from "react-icons/fa";
 
-interface HeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ children }) => {
+const Header: React.FC = () => {
   const router = useRouter();
   const { user, logout } = useUser();
 
@@ -20,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-emerald-800">
+    <div className="bg-gradient-to-b from-emerald-800 fixed-top mb-4">
       <Navbar expand="md" className="bg-transparent">
         <Container>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -57,7 +52,6 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {children}
     </div>
   );
 };

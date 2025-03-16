@@ -1,4 +1,5 @@
 "use client";
+import "@/app/custom.css";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
 import {
@@ -64,7 +65,7 @@ const Player = () => {
           <div className="d-flex justify-content-center align-items-center mb-2">
             <Button
               variant="link"
-              className={`text-light-gray mx-2 ${isShuffle ? "text-success" : ""}`}
+              className={`control-button mx-2 ${isShuffle ? "text-success" : "text-light-gray"}`}
               onClick={toggleShuffle}
             >
               <FaRandom />
@@ -85,16 +86,18 @@ const Player = () => {
             </Button>
             <Button
               variant="link"
-              className={`text-light-gray mx-2 ${isRepeat ? "text-success" : ""}`}
+              className={`control-button mx-2 ${isRepeat ? "text-success" : "text-light-gray"}`}
               onClick={toggleRepeat}
             >
               <FaRedo />
             </Button>
           </div>
 
-          <div className="d-flex align-items-center px-2">
-            <span className="text-light-gray small me-2">{formatTime(currentTime)}</span>
-            <div className="w-100 mx-2">
+          <div className="d-flex align-items-center justify-content-center px-2">
+            <span className="text-light-gray text-center small me-2" style={{ width: "40px" }}>
+              {formatTime(currentTime)}
+            </span>
+            <div className=" w-100 mx-2">
               <input
                 type="range"
                 className="form-range progress-bar-custom"

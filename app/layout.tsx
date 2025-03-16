@@ -12,6 +12,7 @@ import UploadModal from "@/components/UploadModal";
 import Player from "@/components/Player";
 import ModalProvider from "@/providers/ModalProvider";
 import { PlayerProvider } from "@/providers/PlayerContext";
+import Header from "@/components/Header";
 
 const font = Figtree({ subsets: ["latin"] });
 
@@ -28,10 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ToasterProvider />
           <UserProvider>
             <Suspense fallback={<Loading />}>
+              <Header />
               <Sidebar>
                 <Suspense fallback={<Loading />}>{children}</Suspense>
               </Sidebar>
-              <Player />
+              {/* <Player /> */}
             </Suspense>
             <UploadModal />
           </UserProvider>

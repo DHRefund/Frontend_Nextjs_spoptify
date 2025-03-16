@@ -6,6 +6,7 @@ export interface Song {
   songUrl: string;
   imageUrl?: string;
   userId: string;
+  createdAt: Date;
 }
 
 export interface Playlist {

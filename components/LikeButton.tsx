@@ -1,61 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { useUser } from "@/providers/UserProvider";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { usePlayer } from "@/providers/PlayerContext";
 
 interface LikeButtonProps {
   songId: string;
 }
 
-const LikeButton: React.FC<LikeButtonProps> = ({ songId }) => {
-  const router = useRouter();
-  const { user } = useUser();
-  const [isLiked, setIsLiked] = useState(false);
+const LikeButton = ({ songId }: LikeButtonProps) => {
+  const { isLiked, toggleLike, isLoading } = usePlayer();
 
-  useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`/api/liked?songId=${songId}`);
-        setIsLiked(response.data.isLiked);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, [songId, user?.id]);
-
-  const Icon = isLiked ? AiFillHeart : AiOutlineHeart;
-
-  const handleLike = async () => {
-    if (!user) {
-      return router.push("/login");
-    }
-
-    try {
-      if (isLiked) {
-        await axios.delete(`/api/liked?songId=${songId}`);
-      } else {
-        await axios.post("/api/liked", { songId });
-      }
-      setIsLiked(!isLiked);
-      toast.success("Success");
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  };
+  if (isLoading) {
+    return (
+      <button className="btn btn-link p-0 me-3" disabled>
+        <FaRegHeart className="text-light-gray" />
+      </button>
+    );
+  }
 
   return (
-    <button onClick={handleLike} className="hover:opacity-75 transition">
-      <Icon color={isLiked ? "#22c55e" : "white"} size={25} />
+    <button
+      className="btn btn-link p-0 me-3"
+      onClick={(e) => {
+        e.stopPropagation();
+        toggleLike(songId);
+      }}
+    >
+      {isLiked(songId) ? <FaHeart className="text-success" /> : <FaRegHeart className="text-light-gray" />}
     </button>
   );
 };

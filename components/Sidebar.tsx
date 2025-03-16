@@ -8,6 +8,8 @@ import { BiSearch } from "react-icons/bi";
 import Library from "./Library";
 import { useUser } from "@/providers/UserProvider";
 import Loading from "./Loading";
+import { FaHeart } from "react-icons/fa";
+import Link from "next/link";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -31,6 +33,12 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
         active: pathname === "/search",
         href: "/search",
       },
+      {
+        icon: FaHeart,
+        label: "Liked Songs",
+        active: pathname === "/liked",
+        href: "/liked",
+      },
     ],
     [pathname]
   );
@@ -40,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   }
 
   return (
-    <div className="d-flex h-100">
+    <div className="d-flex h-100 mt-5">
       <div className="sidebar d-none d-md-flex flex-column">
         <Nav className="flex-column">
           {routes.map((item) => (
