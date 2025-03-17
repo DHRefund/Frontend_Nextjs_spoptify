@@ -65,28 +65,40 @@ const Player = () => {
           <div className="d-flex justify-content-center align-items-center mb-2">
             <Button
               variant="link"
-              className={`control-button mx-2 ${isShuffle ? "text-success" : "text-light-gray"}`}
+              className={`d-flex align-items-center justify-content-center control-button mx-2 ${
+                isShuffle ? "text-success" : "text-light-gray"
+              }`}
               onClick={toggleShuffle}
             >
               <FaRandom />
             </Button>
-            <Button variant="link" className="text-light-gray mx-2" onClick={handlePrevSong}>
+            <Button
+              variant="link"
+              className="text-light-gray mx-2 d-flex align-items-center justify-content-center control-button"
+              onClick={handlePrevSong}
+            >
               <FaStepBackward />
             </Button>
             <Button
               variant="success"
-              className="rounded-circle mx-2"
+              className="rounded-circle mx-2 d-flex align-items-center justify-content-center control-button"
               style={{ width: "40px", height: "40px" }}
               onClick={handlePlayPause}
             >
               {isPlaying ? <FaPause /> : <FaPlay />}
             </Button>
-            <Button variant="link" className="text-light-gray mx-2" onClick={handleNextSong}>
+            <Button
+              variant="link"
+              className="text-light-gray mx-2 d-flex align-items-center justify-content-center control-button"
+              onClick={handleNextSong}
+            >
               <FaStepForward />
             </Button>
             <Button
               variant="link"
-              className={`control-button mx-2 ${isRepeat ? "text-success" : "text-light-gray"}`}
+              className={`d-flex align-items-center justify-content-center control-button mx-2 ${
+                isRepeat ? "text-success" : "text-light-gray"
+              }`}
               onClick={toggleRepeat}
             >
               <FaRedo />
@@ -97,15 +109,20 @@ const Player = () => {
             <span className="text-light-gray text-center small me-2" style={{ width: "40px" }}>
               {formatTime(currentTime)}
             </span>
-            <div className=" w-100 mx-2">
+            <div
+              className="w-100 mx-2 d-flex align-items-center justify-content-center pb-2"
+              style={{ position: "relative" }}
+            >
+              <div className="progress-filled" style={{ width: `${progress}%`, left: 0 }} />
               <input
                 type="range"
-                className="form-range progress-bar-custom"
+                className="form-range"
                 value={progress}
                 onChange={(e) => handleProgressChange(parseFloat(e.target.value))}
                 min="0"
                 max="100"
                 step="0.1"
+                style={{ zIndex: 1 }}
               />
             </div>
             <span className="text-light-gray small ms-2">{formatTime(duration)}</span>
@@ -114,19 +131,26 @@ const Player = () => {
 
         {/* Volume */}
         <Col xs={3} className="d-flex align-items-center justify-content-end">
-          <Button variant="link" className="text-light-gray" onClick={toggleMute}>
+          <Button
+            variant="link"
+            className="d-flex align-items-center justify-content-center control-button"
+            onClick={toggleMute}
+          >
             {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
           </Button>
-          <input
-            type="range"
-            className="form-range ms-2"
-            min="0"
-            max="1"
-            step="0.01"
-            value={isMuted ? 0 : volume}
-            onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-            style={{ width: "100px" }}
-          />
+          <div className="d-flex align-items-center justify-content-center" style={{ position: "relative" }}>
+            <div className="progress-filled ms-2" style={{ width: `${volume * 100}%` }} />
+            <input
+              type="range"
+              className="form-range ms-2"
+              min="0"
+              max="1"
+              step="0.01"
+              value={isMuted ? 0 : volume}
+              onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+              style={{ width: "100px", zIndex: 1 }}
+            />
+          </div>
         </Col>
       </Row>
     </Container>

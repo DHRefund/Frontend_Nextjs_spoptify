@@ -8,7 +8,7 @@ import MediaItem from "@/components/MediaItem";
 import { Button } from "react-bootstrap";
 import { usePlayer } from "@/providers/PlayerContext";
 import { Song } from "@/types/index";
-
+import { toast } from "react-hot-toast";
 const Library = () => {
   const uploadModal = useUploadModal();
   const { user } = useUser();
@@ -17,7 +17,7 @@ const Library = () => {
   const onClick = () => {
     if (!user) {
       // Handle auth modal
-      return alert("Please login to upload a song");
+      return toast.error("Please login to upload a song");
     }
 
     // Handle upload modal
@@ -36,7 +36,7 @@ const Library = () => {
         </Button>
       </div>
       <div className="d-flex flex-column gap-2 mt-4 px-3">
-        {songs.map((song:Song) => (
+        {songs.map((song: Song) => (
           <MediaItem key={song.id} data={song} onClick={() => setCurrentSong(song)} />
         ))}
       </div>

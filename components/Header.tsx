@@ -1,55 +1,75 @@
 "use client";
 
-import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { useRouter } from "next/navigation";
+import { Container, Nav, Navbar, Button, Dropdown } from "react-bootstrap";
 import { useUser } from "@/providers/UserProvider";
-import { FaUserAlt } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
+import { toast } from "react-hot-toast";
+import axiosInstance from "@/lib/axios";
 
-const Header: React.FC = () => {
+const Header = () => {
   const router = useRouter();
-  const { user, logout } = useUser();
+  const { user, setUser } = useUser();
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/auth/logout");
+      setUser(null);
+      toast.success("Logged out successfully!");
+      router.push("/login");
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
   };
 
   return (
-    <div className="bg-gradient-to-b from-emerald-800 fixed-top mb-4">
-      <Navbar expand="md" className="bg-transparent">
-        <Container>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => router.back()} className="text-white">
-                Back
-              </Nav.Link>
-              <Nav.Link onClick={() => router.forward()} className="text-white">
-                Forward
-              </Nav.Link>
-            </Nav>
-            <Nav>
-              {user ? (
-                <>
-                  <Button variant="light" onClick={handleLogout} className="me-2">
-                    Logout
-                  </Button>
-                  <Button variant="light" onClick={() => router.push("/account")}>
-                    <FaUserAlt />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="link" className="text-white" onClick={() => router.push("/signup")}>
-                    Sign up
-                  </Button>
-                  <Button variant="light" onClick={() => router.push("/login")}>
-                    Log in
-                  </Button>
-                </>
-              )}
-            </Nav>
-          </Navbar.Collapse>
+    <div className="sticky-top">
+      <Navbar fixed="top" bg="black" variant="dark" className="py-2" style={{ backdropFilter: "blur(10px)" }}>
+        <Container fluid>
+          <Navbar.Brand href="/" className="fw-bold">
+            Spotify Clone
+          </Navbar.Brand>
+
+          <Nav className="ms-auto align-items-center">
+            {user ? (
+              <Dropdown>
+                <Dropdown.Toggle variant="link" className="d-flex align-items-center text-white">
+                  <FaUserCircle size={40} className="me-2" />
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu align="end" className="bg-dark">
+                  <Dropdown.Item className="text-white" onClick={() => router.push("/account")}>
+                    Tài khoản
+                  </Dropdown.Item>
+                  <Dropdown.Item className="text-white" onClick={() => router.push("/profile")}>
+                    Hồ sơ
+                  </Dropdown.Item>
+                  <Dropdown.Item className="text-white" onClick={() => router.push("/premium")}>
+                    Nâng cấp lên Premium
+                  </Dropdown.Item>
+                  <Dropdown.Item className="text-white" onClick={() => router.push("/support")}>
+                    Hỗ trợ
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout} className="text-danger">
+                    Đăng xuất
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : (
+              <>
+                <Button
+                  variant="link"
+                  className="text-light-gray text-decoration-none me-3"
+                  onClick={() => router.push("/signup")}
+                >
+                  Sign up
+                </Button>
+                <Button variant="light" className="rounded-pill px-4" onClick={() => router.push("/login")}>
+                  Log in
+                </Button>
+              </>
+            )}
+          </Nav>
         </Container>
       </Navbar>
     </div>

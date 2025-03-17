@@ -24,7 +24,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body className={font.className} style={{ overflow: "hidden" }}>
         <PlayerProvider>
           <ToasterProvider />
           <UserProvider>
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Sidebar>
                 <Suspense fallback={<Loading />}>{children}</Suspense>
               </Sidebar>
-              {/* <Player /> */}
+              <Player />
             </Suspense>
             <UploadModal />
           </UserProvider>

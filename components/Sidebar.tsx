@@ -48,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   }
 
   return (
-    <div className="d-flex h-100 mt-5">
+    <div className="d-flex h-100 " style={{ marginTop: "70px" }}>
       <div className="sidebar d-none d-md-flex flex-column">
         <Nav className="flex-column">
           {routes.map((item) => (
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
             </Nav.Link>
           ))}
         </Nav>
-        <div className="library-section flex-grow-1">
+        <div className="library-section flex-grow">
           <Library />
         </div>
       </div>

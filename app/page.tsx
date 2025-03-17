@@ -4,7 +4,7 @@ import SongList from "@/components/SongList";
 
 export default function Home() {
   return (
-    <Container fluid className="bg-dark min-vh-100 mt-5">
+    <Container fluid className="bg-dark min-vh-100">
       <div className="mb-4">
         <h1 className="text-white display-4">Welcome back</h1>
       </div>

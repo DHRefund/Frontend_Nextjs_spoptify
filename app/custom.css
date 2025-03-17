@@ -201,3 +201,120 @@ body {
 .modal-dark .modal-body {
   padding: 1.5rem;
 }
+.control-button {
+  color: var(--spotify-white) !important;
+  /* background-color: var(--spotify-green) !important; */
+  /* border-color: var(--spotify-green) !important; */
+  /* border-radius: 500px !important; */
+  /* padding: 0.75rem 2rem !important; */
+  /* font-weight: 700 !important; */
+}
+.control-button:hover {
+  /* background-color: #1ed760 !important;
+  border-color: #1ed760 !important; */
+  transform: scale(1.04);
+}
+
+.control-button:active {
+  /* background-color: #1ed760 !important;
+  border-color: #1ed760 !important; */
+  transform: scale(0.96);
+}
+.control-button.text-success {
+  color: var(--spotify-green) !important;
+  /* background-color: var(--spotify-green) !important; */
+  /* border-color: var(--spotify-green) !important; */
+  /* border-radius: 500px !important; */
+  /* padding: 0.75rem 2rem !important; */
+  /* font-weight: 700 !important; */
+}
+.control-button.text-success:hover {
+  /* background-color: #1ed760 !important;
+  border-color: #1ed760 !important; */
+  transform: scale(1.04);
+}
+
+.control-button.text-success:active {
+  /* background-color: #1ed760 !important;
+  border-color: #1ed760 !important; */
+  transform: scale(0.96);
+}
+
+input[type="range"] {
+  -webkit-appearance: none; /* Remove default styling */
+  appearance: none; /* Remove default styling */
+  width: 100%; /* Full width */
+  height: 4px; /* Height of the track */
+  background: #ffffff; /* Track color */
+  border-radius: 5px; /* Rounded corners */
+  outline: none; /* Remove outline */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+  appearance: none; /* Remove default styling */
+  width: 12px; /* Thumb width */
+
+  height: 12px; /* Thumb height */
+  border-radius: 50%; /* Round thumb */
+  background: #1db954; /* Thumb color */
+  cursor: pointer; /* Pointer cursor */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  opacity: 0;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; /* Track height */
+  background: #ffffff; /* Track color */
+  border-radius: 5px; /* Rounded corners */
+  width: 100%; /* Full width */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px; /* Thumb width */
+  height: 12px; /* Thumb height */
+  border-radius: 50%; /* Round thumb */
+  background: #1db954; /* Thumb color */
+  cursor: pointer; /* Pointer cursor */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
+input[type="range"]::-ms-thumb {
+  width: 12px; /* Thumb width */
+  height: 12px; /* Thumb height */
+  border-radius: 50%; /* Round thumb */
+  background: #1db954; /* Thumb color */
+  cursor: pointer; /* Pointer cursor */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
+/* input[type="range"]:hover::-webkit-slider-runnable-track {
+  background: #1db954; /* Thumb color 
+} */
+
+input[type="range"]::-moz-range-track {
+  height: 4px; /* Track height */
+  background: #535353; /* Track color */
+  border-radius: 5px; /* Rounded corners */
+}
+
+input[type="range"]::-ms-track {
+  height: 4px; /* Track height */
+  background: #535353; /* Track color */
+  border-radius: 5px; /* Rounded corners */
+  border: none; /* Remove border */
+  color: transparent; /* Hide track color */
+}
+/* Progress filled styling */
+.progress-filled {
+  left: 0;
+  position: absolute;
+  pointer-events: none;
+  height: 4px; /* Same height as the track */
+  background: #1db954; /* Color of the filled progress */
+  border-radius: 5px; /* Rounded corners */
+  z-index: 2; /* Ensure it appears above the track */
+  /* transition: width 0.1s ease; Smooth transition */
+}
