@@ -7,6 +7,8 @@ import { usePlayer } from "@/providers/PlayerContext";
 import SortOptions from "./SortOptions";
 import LikeButton from "./LikeButton";
 
+import { useContext } from "react";
+
 const SongList = () => {
   const { sortedSongs, currentSong, isLoading, setCurrentSong } = usePlayer();
 

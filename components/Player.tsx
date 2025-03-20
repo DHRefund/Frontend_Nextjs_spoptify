@@ -138,8 +138,11 @@ const Player = () => {
           >
             {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
           </Button>
-          <div className="d-flex align-items-center justify-content-center" style={{ position: "relative" }}>
-            <div className="progress-filled ms-2" style={{ width: `${volume * 100}%` }} />
+          <div
+            className="d-flex align-items-center justify-content-center"
+            style={{ position: "relative", width: "100px" }}
+          >
+            <div className="progress-filled ms-2" style={{ width: `${volume * 100}%`, left: -4 }} />
             <input
               type="range"
               className="form-range ms-2"

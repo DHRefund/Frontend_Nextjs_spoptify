@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useMemo } fr
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import { Song } from "@/types/index";
+import { audioService } from "@/services/audioService";
 
 type SortType = "title" | "artist" | "createdAt";
 type SortOrder = "asc" | "desc";
@@ -51,7 +52,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
@@ -59,95 +59,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isShuffle, setIsShuffle] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [shuffledSongs, setShuffledSongs] = useState<Song[]>([]);
   const [sortType, setSortType] = useState<SortType>("createdAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const [shuffledSongs, setShuffledSongs] = useState<Song[]>([]);
 
-  // Initialize audio
-  useEffect(() => {
-    const audioElement = new Audio();
-    setAudio(audioElement);
-
-    return () => {
-      audioElement.pause();
-      audioElement.src = "";
-    };
-  }, []);
-
-  // Handle audio events
-  useEffect(() => {
-    if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      const progressValue = (audio.currentTime / audio.duration) * 100;
-      if (!isNaN(progressValue) && Math.abs(progress - progressValue) > 0.1) {
-        setProgress(progressValue);
-        document.documentElement.style.setProperty("--progress", `${progressValue}%`);
-      }
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-
-    const handleEnded = () => {
-      if (isRepeat) {
-        audio.currentTime = 0;
-        audio.play();
-      } else {
-        handleNextSong();
-      }
-    };
-
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("ended", handleEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [audio, isRepeat, progress]);
-
-  // Load and play song when currentSong changes
-  useEffect(() => {
-    if (audio && currentSong) {
-      audio.src = currentSong.songUrl;
-      audio.load();
-      audio.play();
-      setIsPlaying(true);
-    }
-  }, [currentSong, audio]);
-
-  // Fetch songs và liked songs
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [songsResponse, likedResponse] = await Promise.all([
-          axiosInstance.get("/songs"),
-          axiosInstance.get("/songs/liked"),
-        ]);
-
-        console.log("Songs response:", songsResponse.data);
-        console.log("Liked songs response:", likedResponse.data);
-
-        setSongs(songsResponse.data);
-
-        // Đảm bảo likedResponse.data là array và có data
-        if (Array.isArray(likedResponse.data) && likedResponse.data.length > 0) {
-          setLikedSongs(likedResponse.data);
-        } else {
-          setLikedSongs([]);
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
-        toast.error("Failed to load data");
-        setSongs([]);
-        setLikedSongs([]);
+        const { songs: fetchedSongs, likedSongs: fetchedLikedSongs } = await audioService.fetchSongs();
+        setSongs(fetchedSongs);
+        setLikedSongs(fetchedLikedSongs);
       } finally {
         setIsLoading(false);
       }
@@ -156,31 +79,38 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     fetchData();
   }, []);
 
-  // Hàm để tạo danh sách phát ngẫu nhiên
-  const shuffleArray = (array: Song[]) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
+  // Handle audio time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentTime = audioService.getCurrentTime();
+      const duration = audioService.getDuration();
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
+      setCurrentTime(currentTime);
+      setDuration(duration);
 
-  const handlePlayPause = () => {
-    if (!audio || !currentSong) return;
+      const progressValue = (currentTime / duration) * 100;
+      if (!isNaN(progressValue)) {
+        setProgress(progressValue);
+        document.documentElement.style.setProperty("--progress", `${progressValue}%`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePlayPause = async () => {
+    if (!currentSong) return;
 
     if (isPlaying) {
-      audio.pause();
+      audioService.pause();
       setIsPlaying(false);
     } else {
-      audio.play();
-      setIsPlaying(true);
+      try {
+        await audioService.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error("Playback failed:", error);
+      }
     }
   };
 
@@ -188,17 +118,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (!currentSong) return;
 
     if (isShuffle) {
-      const currentShuffleIndex = shuffledSongs.findIndex((s) => s.id === currentSong.id);
+      const currentShuffleIndex = shuffledSongs.findIndex((song: Song) => song.id === currentSong.id);
       if (currentShuffleIndex < shuffledSongs.length - 1) {
         setCurrentSong(shuffledSongs[currentShuffleIndex + 1]);
       } else {
         // Nếu đã hết danh sách ngẫu nhiên, tạo danh sách mới
-        const newShuffled = shuffleArray(songs);
+        const newShuffled = audioService.shuffleArray(songs);
         setShuffledSongs(newShuffled);
         setCurrentSong(newShuffled[0]);
       }
     } else {
-      const currentIndex = songs.findIndex((s) => s.id === currentSong.id);
+      const currentIndex = songs.findIndex((song: Song) => song.id === currentSong.id);
       if (currentIndex < songs.length - 1) {
         setCurrentSong(songs[currentIndex + 1]);
       }
@@ -209,12 +139,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (!currentSong) return;
 
     if (isShuffle) {
-      const currentShuffleIndex = shuffledSongs.findIndex((s) => s.id === currentSong.id);
+      const currentShuffleIndex = shuffledSongs.findIndex((song: Song) => song.id === currentSong.id);
       if (currentShuffleIndex > 0) {
         setCurrentSong(shuffledSongs[currentShuffleIndex - 1]);
       }
     } else {
-      const currentIndex = songs.findIndex((s) => s.id === currentSong.id);
+      const currentIndex = songs.findIndex((song: Song) => song.id === currentSong.id);
       if (currentIndex > 0) {
         setCurrentSong(songs[currentIndex - 1]);
       }
@@ -222,20 +152,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const handleProgressChange = (value: number) => {
-    if (!audio || !duration) return;
+    if (!duration) return;
 
     const exactTime = (value * duration) / 100;
-
     setProgress(value);
-
-    audio.currentTime = exactTime;
+    audioService.seek(exactTime);
     setCurrentTime(exactTime);
   };
 
   const handleVolumeChange = (value: number) => {
-    if (!audio) return;
     setVolume(value);
-    audio.volume = value;
+    audioService.setVolume(value);
     if (value === 0) {
       setIsMuted(true);
     } else {
@@ -244,12 +171,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleMute = () => {
-    if (!audio) return;
     if (isMuted) {
-      audio.volume = volume;
+      audioService.setVolume(volume);
       setIsMuted(false);
     } else {
-      audio.volume = 0;
+      audioService.setVolume(0);
       setIsMuted(true);
     }
   };
@@ -261,11 +187,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const toggleShuffle = () => {
     if (!isShuffle) {
       // Khi bật shuffle, tạo danh sách phát ngẫu nhiên mới
-      const shuffled = shuffleArray(songs);
+      const shuffled = audioService.shuffleArray(songs);
       setShuffledSongs(shuffled);
       // Nếu đang phát nhạc, thêm bài hát hiện tại vào đầu danh sách
       if (currentSong) {
-        const currentIndex = shuffled.findIndex((s) => s.id === currentSong.id);
+        const currentIndex = shuffled.findIndex((song: Song) => song.id === currentSong.id);
         if (currentIndex !== -1) {
           shuffled.splice(currentIndex, 1);
           shuffled.unshift(currentSong);
@@ -299,7 +225,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const toggleLike = async (songId: string) => {
     try {
-      const { data } = await axiosInstance.post(`/songs/${songId}/like`);
+      const { data } = await audioService.toggleLikeSong(songId);
       console.log("Toggle like response:", data);
 
       if (data.liked) {
@@ -326,7 +252,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const addSong = (song: Song) => {
-    setSongs((prev) => [song, ...prev]); // Thêm bài hát mới vào đầu danh sách
+    alert("addSong");
+    // setSongs((prev) => [song, ...prev]); // Thêm bài hát mới vào đầu danh sách
   };
 
   const value = {
@@ -334,7 +261,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     currentSong,
     isLoading,
     isPlaying,
-    audio,
+    audio: null,
     progress,
     volume,
     isMuted,
@@ -353,7 +280,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     toggleMute,
     toggleRepeat,
     toggleShuffle,
-    formatTime,
+    formatTime: audioService.formatTime,
     sortType,
     sortOrder,
     setSortType,
@@ -364,6 +291,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     isLiked,
     addSong,
   };
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      audioService.destroy();
+    };
+  }, []);
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
 }
